@@ -584,31 +584,50 @@ function schedule() {
         if (1/sleepy > intensityceiling) {
             intensityceiling = 1/sleepy;
         }
-        var intensitylevel = Math.floor((1/sleepy) / (intensityceiling/12));
-        if (intensitylevel == 0 || (intensitylevel >= 2 && intensitylevel <= 4) ) {
-            // 10s player to l
-        } else {
-            // 10s player to h
+        var intensitylevel = Math.floor((1/sleepy) / (intensityceiling/7));
+        switch (intensityLevel) {
+            case 0:
+                tenp.buffer = currentKit.intensityBuffer[0]; tenp.noteOn;
+                twelvep.noteOff;
+                fourteenp.noteOff;
+                break;
+            case 1:
+                tenp.buffer = currentKit.intensityBuffer[1]; tenp.noteOn;
+                twelvep.buffer = currentKit.intensityBuffer[0]; twelvep.noteOn;
+                fourteenp.noteOff;
+                break;
+            case 2:
+                tenp.buffer = currentKit.intensityBuffer[4]; tenp.noteOn;
+                twelvep.buffer = currentKit.intensityBuffer[1]; twelvep.noteOn;
+                fourteenp.noteOff;
+                break;
+            case 3:
+                tenp.buffer = currentKit.intensityBuffer[7]; tenp.noteOn;
+                twelvep.buffer = currentKit.intensityBuffer[5]; twelvep.noteOn;
+                fourteenp.buffer = currentKit.intensityBuffer[3]; fourteenp.noteOn;
+                break;
+            case 4:
+                tenp.buffer = currentKit.intensityBuffer[10]; tenp.noteOn;
+                twelvep.buffer = currentKit.intensityBuffer[8]; twelvep.noteOn;
+                fourteenp.buffer = currentKit.intensityBuffer[6]; fourteenp.noteOn;
+                break;
+            case 5:
+                tenp.buffer = currentKit.intensityBuffer[10]; tenp.noteOn;
+                twelvep.buffer = currentKit.intensityBuffer[11]; twelvep.noteOn;
+                fourteenp.buffer = currentKit.intensityBuffer[9]; fourteenp.noteOn;
+                break;
+            case 6:
+                tenp.buffer = currentKit.intensityBuffer[10]; tenp.noteOn;
+                twelvep.buffer = currentKit.intensityBuffer[11]; twelvep.noteOn;
+                fourteenp.buffer = currentKit.intensityBuffer[12]; fourteenp.noteOn;
+                break;
         }
-
-        if (intensitylevel <= 1 || intensitylevel == 3 || intensitylevel == 5) {
-            // 12s player to l
-        } else {
-            // 12s player to h
-        }
-        
-        if (intensitylevel <= 2 || intensitylevel == 6) {
-            // 14s player to l
-        } else {
-            // 14s player to h
-        }
-
         if (e == "#") {
-            playNote(currentKit.hashBuffer, true, x, y, z, 0, 0.5, 1, 0);
+            playNote(currentKit.hashBuffer, false, x, y, z, 0, 0.5, 1, 0);
         } else if (e == "@") {
-            playNote(currentKit.thunderBuffer, true, x, y, z, 0, 0.5, 1, 0);
+            playNote(currentKit.thunderBuffer, false, x, y, z, 0, 0.5, 1, 0);
         } else if (e == "d") {
-            playNote(currentKit.dropBuffer, true, x, y, z, 0, 0.5, 1, 0);
+            playNote(currentKit.dropBuffer, false, x, y, z, 0, 0.5, 1, 0);
         }
     }
     var timeoutId = setTimeout("schedule()", sleepy);
