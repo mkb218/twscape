@@ -51,6 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 window.onload = init;
 
 var eventQ;
+var intensityceiling = 1;
 
 var context;
 var convolver;
@@ -70,59 +71,11 @@ var lastDrawTime = -1;
 
 var kits;
 
-var kNumInstruments = 6;
-var kInitialKitIndex = 10;
+var kNumInstruments = 8;
+var kInitialKitIndex = 0;
 var kMaxSwing = .08;
 
 var currentKit;
-
-var beatReset = {"kitIndex":0,"effectIndex":0,"tempo":100,"swingFactor":0,"effectMix":0.25,"kickPitchVal":0.5,"snarePitchVal":0.5,"hihatPitchVal":0.5,"tom1PitchVal":0.5,"tom2PitchVal":0.5,"tom3PitchVal":0.5,"rhythm1":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rhythm2":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rhythm3":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rhythm4":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rhythm5":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rhythm6":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]};
-var beatDemo = [
-    {"kitIndex":13,"effectIndex":18,"tempo":120,"swingFactor":0,"effectMix":0.19718309859154926,"kickPitchVal":0.5,"snarePitchVal":0.5,"hihatPitchVal":0.5,"tom1PitchVal":0.5,"tom2PitchVal":0.5,"tom3PitchVal":0.5,"rhythm1":[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rhythm2":[0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0],"rhythm3":[0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0],"rhythm4":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0],"rhythm5":[0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0],"rhythm6":[0,0,0,0,0,0,0,2,0,2,2,0,0,0,0,0]},
-    {"kitIndex":4,"effectIndex":3,"tempo":100,"swingFactor":0,"effectMix":0.2,"kickPitchVal":0.46478873239436624,"snarePitchVal":0.45070422535211263,"hihatPitchVal":0.15492957746478875,"tom1PitchVal":0.7183098591549295,"tom2PitchVal":0.704225352112676,"tom3PitchVal":0.8028169014084507,"rhythm1":[2,1,0,0,0,0,0,0,2,1,2,1,0,0,0,0],"rhythm2":[0,0,0,0,2,0,0,0,0,1,1,0,2,0,0,0],"rhythm3":[0,1,2,1,0,1,2,1,0,1,2,1,0,1,2,1],"rhythm4":[0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0],"rhythm5":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0],"rhythm6":[0,0,0,0,0,0,0,2,1,2,1,0,0,0,0,0]},
-    {"kitIndex":2,"effectIndex":5,"tempo":100,"swingFactor":0,"effectMix":0.25,"kickPitchVal":0.5,"snarePitchVal":0.5,"hihatPitchVal":0.5211267605633803,"tom1PitchVal":0.23943661971830987,"tom2PitchVal":0.21126760563380287,"tom3PitchVal":0.2535211267605634,"rhythm1":[2,0,0,0,2,0,0,0,2,0,0,0,2,0,0,0],"rhythm2":[0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0],"rhythm3":[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],"rhythm4":[1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1],"rhythm5":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0],"rhythm6":[0,0,1,0,1,0,0,2,0,2,0,0,1,0,0,0]},
-    {"kitIndex":1,"effectIndex":4,"tempo":120,"swingFactor":0,"effectMix":0.25,"kickPitchVal":0.7887323943661972,"snarePitchVal":0.49295774647887325,"hihatPitchVal":0.5,"tom1PitchVal":0.323943661971831,"tom2PitchVal":0.3943661971830986,"tom3PitchVal":0.323943661971831,"rhythm1":[2,0,0,0,0,0,0,2,2,0,0,0,0,0,0,1],"rhythm2":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rhythm3":[0,0,1,0,2,0,1,0,1,0,1,0,2,0,2,0],"rhythm4":[2,0,2,0,0,0,0,0,2,0,0,0,0,2,0,0],"rhythm5":[0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0],"rhythm6":[0,2,0,0,0,2,0,0,0,2,0,0,0,0,0,0]},
-    {"kitIndex":0,"effectIndex":1,"tempo":60,"swingFactor":0.5419847328244275,"effectMix":0.25,"kickPitchVal":0.5,"snarePitchVal":0.5,"hihatPitchVal":0.5,"tom1PitchVal":0.5,"tom2PitchVal":0.5,"tom3PitchVal":0.5,"rhythm1":[2,2,0,1,2,2,0,1,2,2,0,1,2,2,0,1],"rhythm2":[0,0,2,0,0,0,2,0,0,0,2,0,0,0,2,0],"rhythm3":[2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1],"rhythm4":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rhythm5":[0,0,1,0,0,1,0,1,0,0,1,0,0,0,1,0],"rhythm6":[1,0,0,1,0,1,0,1,1,0,0,1,1,1,1,0]},
-];
-
-function cloneBeat(source) {
-    var beat = new Object();
-    
-    beat.kitIndex = source.kitIndex;
-    beat.effectIndex = source.effectIndex;
-    beat.tempo = source.tempo;
-    beat.swingFactor = source.swingFactor;
-    beat.effectMix = source.effectMix;
-    beat.kickPitchVal = source.kickPitchVal;
-    beat.snarePitchVal = source.snarePitchVal;
-    beat.hihatPitchVal = source.hihatPitchVal;
-    beat.tom1PitchVal = source.tom1PitchVal;
-    beat.tom2PitchVal = source.tom2PitchVal;
-    beat.tom3PitchVal = source.tom3PitchVal;
-    beat.rhythm1 = source.rhythm1.slice(0);        // slice(0) is an easy way to copy the full array
-    beat.rhythm2 = source.rhythm2.slice(0);
-    beat.rhythm3 = source.rhythm3.slice(0);
-    beat.rhythm4 = source.rhythm4.slice(0);
-    beat.rhythm5 = source.rhythm5.slice(0);
-    beat.rhythm6 = source.rhythm6.slice(0);
-    
-    return beat;
-}
-
-// theBeat is the object representing the current beat/groove
-// ... it is saved/loaded via JSON
-var theBeat = cloneBeat(beatReset);
-
-kickPitch = snarePitch = hihatPitch = tom1Pitch = tom2Pitch = tom3Pitch = 0;
-
-var mouseCapture = null;
-var mouseCaptureOffset = 0;
-
-var loopLength = 16;
-var rhythmIndex = 0;
-var kMinTempo = 50;
-var kMaxTempo = 180;
-var noteTime = 0.0;
 
 var instruments = ['Kick', 'Snare', 'HiHat', 'Tom1', 'Tom2', 'Tom3'];
 
@@ -131,52 +84,23 @@ var volumes = [0, 0.3, 1];
 var kitCount = 0;
 
 var kitName = [
-    "R8",
-    "CR78",
-    "KPR77",
-    "LINN",
-    "Kit3",
-    "Kit8",
-    "Techno",
-    "Stark",
-    "breakbeat8",
-    "breakbeat9",
-    "breakbeat13",
-    "acoustic-kit",
-    "4OP-FM",
-    "TheCheebacabra1",
-    "TheCheebacabra2"
+    "twscape"
     ];
 
 var kitNamePretty = [
-    "Roland R-8",
-    "Roland CR-78",
-    "Korg KPR-77",
-    "LinnDrum",
-    "Kit 3",
-    "Kit 8",
-    "Techno",
-    "Stark",
-    "Breakbeat 8",
-    "Breakbeat 9",
-    "Breakbeat 13",
-    "Acoustic Kit",
-    "4OP-FM",
-    "The Cheebacabra 1",
-    "The Cheebacabra 2"
+    "twscape"
     ];
 
 function Kit(name) {
     this.name = name;
 
     this.pathName = function() {
-        var pathName = "sounds/drum-samples/" + this.name + "/";
-        return pathName;
+        return "audio/";
     };
 
-    this.kickBuffer = 0;
-    this.snareBuffer = 0;
-    this.hihatBuffer = 0;
+    this.intensityBuffers = newArray(6);
+    this.thunderBuffer = 0;
+    this.hashBuffer = 0;
 
     this.instrumentCount = kNumInstruments;
     this.instrumentLoadCount = 0;
@@ -199,19 +123,18 @@ Kit.prototype.load = function() {
         
     var pathName = this.pathName();
 
-    var kickPath = pathName + "kick.wav";
-    var snarePath = pathName + "snare.wav";
-    var hihatPath = pathName + "hihat.wav";
-    var tom1Path = pathName + "tom1.wav";
-    var tom2Path = pathName + "tom2.wav";
-    var tom3Path = pathName + "tom3.wav";
+    var intensitysub = pathName + "intensity";
+    var thunderPath = pathName + "thunder.wav";
+    var hashPath = pathName + "hash.wav";
 
-    this.loadSample(0, kickPath, false);
-    this.loadSample(1, snarePath, false);
-    this.loadSample(2, hihatPath, true);  // we're panning only the hihat
-    this.loadSample(3, tom1Path, false);
-    this.loadSample(4, tom2Path, false);
-    this.loadSample(5, tom3Path, false);
+    this.loadSample(0, intensitysub+"0.wav", false);
+    this.loadSample(1, intensitysub+"1.wav", false);
+    this.loadSample(2, intensitysub+"2.wav", false);
+    this.loadSample(3, intensitysub+"3.wav", false);
+    this.loadSample(4, intensitysub+"4.wav", false);
+    this.loadSample(5, intensitysub+"5.wav", false);
+    this.loadSample(6, thunderPath, false);
+    this.loadSample(7, hashPath, false);
 }
 
 Kit.prototype.loadSample = function(sampleID, url, mixToMono) {
@@ -226,12 +149,14 @@ Kit.prototype.loadSample = function(sampleID, url, mixToMono) {
     request.onload = function() {
         var buffer = context.createBuffer(request.response, mixToMono);
         switch (sampleID) {
-            case 0: kit.kickBuffer = buffer; break;
-            case 1: kit.snareBuffer = buffer; break;
-            case 2: kit.hihatBuffer = buffer; break;
-            case 3: kit.tom1 = buffer; break;
-            case 4: kit.tom2 = buffer; break;
-            case 5: kit.tom3 = buffer; break;
+            case 0: kit.intensityBuffers[0] = buffer; break;
+            case 1: kit.intensityBuffers[1] = buffer; break;
+            case 2: kit.intensityBuffers[2] = buffer; break;
+            case 3: kit.intensityBuffers[3] = buffer; break;
+            case 4: kit.intensityBuffers[4] = buffer; break;
+            case 5: kit.intensityBuffers[5] = buffer; break;
+            case 6: thunderBuffer = buffer; break;
+            case 7: hashBuffer = buffer; break;
         }
 
         kit.instrumentLoadCount++;
@@ -364,15 +289,14 @@ function startLoadingAssets() {
     }
     
     // Setup initial drumkit
-    currentKit = kits[kInitialKitIndex];
+    currentKit = kits[0];
+    
+    samps = new Array();
+    for (i = 0; i < sampfiles.length; i++) {
+        samps[sampfiles[i][name]] = 
+    }
 }
 
-function demoButtonURL(demoIndex) {
-    var n = demoIndex + 1;
-    var demoName = "demo" + n;
-    var url = "images/btn_" + demoName + ".png";
-    return url;
-}
 
 // This gets rid of the loading spinner in each of the demo buttons.
 function showDemoAvailable(demoIndex /* zero-based */) {
@@ -456,19 +380,9 @@ function init() {
     convolver = context.createConvolver();
     convolver.connect(effectLevelNode);
 
-
-    var elKitCombo = document.getElementById('kitcombo');
-    elKitCombo.addEventListener("mousedown", handleKitComboMouseDown, true);
-
-    var elEffectCombo = document.getElementById('effectcombo');
-    elEffectCombo.addEventListener("mousedown", handleEffectComboMouseDown, true);
-
-    document.body.addEventListener("mousedown", handleBodyMouseDown, true);
-
     eventQ = new Queue();
-
-    initControls();
-    updateControls();
+//    initControls();
+//    updateControls();
     schedule();
 }
 
@@ -577,12 +491,11 @@ function advanceNote() {
     }
 }
 
-function playNote(buffer, pan, x, y, z, sendGain, mainGain, playbackRate, noteTime, loop) {
+function playNote(buffer, pan, x, y, z, sendGain, mainGain, playbackRate, noteTime) {
     // Create the note
     var voice = context.createBufferSource();
     voice.buffer = buffer;
     voice.playbackRate.value = playbackRate;
-    voice.loop.value = loop;
 
     // Optionally, connect to a panner
     var finalNode;
@@ -609,9 +522,42 @@ function playNote(buffer, pan, x, y, z, sendGain, mainGain, playbackRate, noteTi
     wetGainNode.connect(convolver);
 
     voice.noteOn(noteTime);
-    return voice
 }
 
+function loopPlayer(buffer, pan, x, y, z, sendGain, mainGain, playbackRate, noteTime) {
+    // Create the note
+    var voice = context.createBufferSource();
+    voice.buffer = buffer;
+    voice.playbackRate.value = playbackRate;
+    voice.loop.value = true;
+
+    // Optionally, connect to a panner
+    var finalNode;
+    if (pan) {
+        var panner = context.createPanner();
+        panner.panningModel = webkitAudioPannerNode.HRTF;
+        panner.setPosition(x, y, z);
+        voice.connect(panner);
+        finalNode = panner;
+    } else {
+        finalNode = voice;
+    }
+
+    // Connect to dry mix
+    var dryGainNode = context.createGainNode();
+    dryGainNode.gain.value = mainGain * effectDryMix;
+    finalNode.connect(dryGainNode);
+    dryGainNode.connect(masterGainNode);
+
+    // Connect to wet mix
+    var wetGainNode = context.createGainNode();
+    wetGainNode.gain.value = sendGain;
+    finalNode.connect(wetGainNode);
+    wetGainNode.connect(convolver);
+
+    voice.noteOn(noteTime);
+    return voice;
+}
 function schedule() {
     var a = -5;
     var b = -1;
@@ -623,7 +569,37 @@ function schedule() {
         var x = Math.random() * 4 - 2;
         var y = Math.random() * 4 - 2;
         var z = Math.random() * 4 - 2;
-        playNote(samps[e], true, x, y, z, 0, 0.5, 1, 0);
+        var loop = false;
+        // set intensity level compared to current ceiling and change rainplayers
+        if (1/sleepy > intensityceiling) {
+            intensityceiling = 1/sleepy;
+        }
+        var intensitylevel = Math.floor((1/sleepy) / (intensityceiling/8));
+        if (intensitylevel == 0 || (intensitylevel >= 2 && intensitylevel <= 4) ) {
+            // 10s player to l
+        } else {
+            // 10s player to h
+        }
+
+        if (intensitylevel <= 1 || intensitylevel == 3 || intensitylevel == 5) {
+            // 12s player to l
+        } else {
+            // 12s player to h
+        }
+        
+        if (intensitylevel <= 2 || intensitylevel == 6) {
+            // 14s player to l
+        } else {
+            // 14s player to h
+        }
+
+        if (e == "#") {
+            playNote(currentKit.hashBuffer, true, x, y, z, 0, 0.5, 1, 0);
+        } else if (e == "@") {
+            playNote(currentKit.thunderBuffer, true, x, y, z, 0, 0.5, 1, 0);
+        } else if (e == "d") {
+            playNote(currentKit.dropBuffer, true, x, y, z, 0, 0.5, 1, 0);
+        }
     }
     var timeoutId = setTimeout("schedule()", sleepy);
 }
