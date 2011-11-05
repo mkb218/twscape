@@ -71,7 +71,7 @@ var lastDrawTime = -1;
 
 var kits;
 
-var kNumInstruments = 8;
+var kNumInstruments = 16;
 var kInitialKitIndex = 0;
 var kMaxSwing = .08;
 
@@ -98,8 +98,9 @@ function Kit(name) {
         return "audio/";
     };
 
-    this.intensityBuffers = newArray(6);
+    this.intensityBuffers = newArray(12);
     this.thunderBuffer = 0;
+    this.dropBuffer = 0;
     this.hashBuffer = 0;
 
     this.instrumentCount = kNumInstruments;
@@ -126,15 +127,25 @@ Kit.prototype.load = function() {
     var intensitysub = pathName + "intensity";
     var thunderPath = pathName + "thunder.wav";
     var hashPath = pathName + "hash.wav";
+    var dropPath = pathName + "drop.wav";
+    var dropletsPath = pathName + "droplets.wav";
 
-    this.loadSample(0, intensitysub+"0.wav", false);
-    this.loadSample(1, intensitysub+"1.wav", false);
-    this.loadSample(2, intensitysub+"2.wav", false);
-    this.loadSample(3, intensitysub+"3.wav", false);
-    this.loadSample(4, intensitysub+"4.wav", false);
-    this.loadSample(5, intensitysub+"5.wav", false);
-    this.loadSample(6, thunderPath, false);
-    this.loadSample(7, hashPath, false);
+    this.loadSample(0, dropletsPath, false);
+    this.loadSample(1, intensitysub+"0_10.wav", false);
+    this.loadSample(2, intensitysub+"0_12.wav", false);
+    this.loadSample(3, intensitysub+"0_14.wav", false);
+    this.loadSample(4, intensitysub+"1_10.wav", false);
+    this.loadSample(5, intensitysub+"1_12.wav", false);
+    this.loadSample(6, intensitysub+"1_14.wav", false);
+    this.loadSample(7, intensitysub+"2_10.wav", false);
+    this.loadSample(8, intensitysub+"2_12.wav", false);
+    this.loadSample(9, intensitysub+"2_14.wav", false);
+    this.loadSample(10, intensitysub+"3_10.wav", false);
+    this.loadSample(11, intensitysub+"3_12.wav", false);
+    this.loadSample(12, intensitysub+"3_14.wav", false);
+    this.loadSample(13, thunderPath, false);
+    this.loadSample(14, hashPath, false);
+    this.loadSample(15, dropPath, false);
 }
 
 Kit.prototype.loadSample = function(sampleID, url, mixToMono) {
@@ -148,15 +159,14 @@ Kit.prototype.loadSample = function(sampleID, url, mixToMono) {
 
     request.onload = function() {
         var buffer = context.createBuffer(request.response, mixToMono);
-        switch (sampleID) {
-            case 0: kit.intensityBuffers[0] = buffer; break;
-            case 1: kit.intensityBuffers[1] = buffer; break;
-            case 2: kit.intensityBuffers[2] = buffer; break;
-            case 3: kit.intensityBuffers[3] = buffer; break;
-            case 4: kit.intensityBuffers[4] = buffer; break;
-            case 5: kit.intensityBuffers[5] = buffer; break;
-            case 6: thunderBuffer = buffer; break;
-            case 7: hashBuffer = buffer; break;
+        if (sampleID <= 12) {
+            kit.intensityBuffers[sampleID] = buffer;
+        } else {
+            switch (sampleID) {
+                case 13: thunderBuffer = buffer; break;
+                case 14: hashBuffer = buffer; break;
+                case 15: dropPath = buffer; break;
+            }
         }
 
         kit.instrumentLoadCount++;
@@ -574,7 +584,7 @@ function schedule() {
         if (1/sleepy > intensityceiling) {
             intensityceiling = 1/sleepy;
         }
-        var intensitylevel = Math.floor((1/sleepy) / (intensityceiling/8));
+        var intensitylevel = Math.floor((1/sleepy) / (intensityceiling/12));
         if (intensitylevel == 0 || (intensitylevel >= 2 && intensitylevel <= 4) ) {
             // 10s player to l
         } else {
