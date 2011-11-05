@@ -1,0 +1,55 @@
+<html>
+  <head>
+    <title>twittersoundscape2</title>
+
+    <script language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
+    
+    <script type='text/javascript'>
+
+      // FIXME: all params should be put into a hash and programattically unrolled into string
+      // to limit search add key/value: since_id=<max_id>
+      var search_url = 'http://search.twitter.com/search.json?q=musichackday&include_entities=true&result_type=recent&callback=?';
+
+     // anonymous function should be rewritten in external lib
+     $.getJSON( search_url, function(json) {
+         var eventQ = [];
+	 var i, j;
+         var at_sign = /@/;
+	 if( json.results ) {
+           
+
+	   // this should work, but isn't
+	   // FIXME: keep track of ids when looping through results
+	   $('#max_id').text( json.results.max_id );
+	   for( i = 0; i < json.results.length; i++ ) {
+	     
+	     // the text parameter can be searched for this too
+	     // find hashtags
+	     if( ( json.results[ i ].entities ) && ( json.results[ i ].entities.hashtags ) && ( json.results[ i ].entities.hashtags.length > 0 ) ) {
+	       for( j = 0; j < json.results[i].entities.hashtags.length; j++ ) {  
+	         eventQ.push( '#' );
+	       }
+	     }
+	   
+	     // find mentions
+	     // FIXME: should add one '@' for EACH
+	     //   now just adds one regardless of how many mentions are in the tweet
+	     if( at_sign.test( json.results[i].text ) ) {
+	       eventQ.push( '@' );
+	     }
+	   }
+	 }
+
+	 $('#eventQ').text( eventQ.join( "\n" ) );
+      });
+
+      //var obj = jQuery.parseJSON( <json> );
+    </script>
+  </head>
+
+  <body>
+    <h1>twittersoundscape2</h1>
+     <p>max_id: <span id="max_id"></span></p>
+     <pre id="eventQ"></pre>
+  </body>
+</html>
