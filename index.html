@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Events
 // init() once the page has finished loading.
 window.onload = init;
-alert('outer scope');
+//alert('outer scope');
 
 var eventQ;
 var customSamps = new Array();
@@ -158,7 +158,7 @@ Kit.prototype.loadSample = function(sampleID, url, mixToMono) {
 
     var kit = this;
 
-    alert("loading a sample");
+    // alert("loading a sample");
     request.onload = function() {
         var buffer = context.createBuffer(request.response, mixToMono);
         if (sampleID <= 12) {
@@ -172,9 +172,9 @@ Kit.prototype.loadSample = function(sampleID, url, mixToMono) {
         }
 
         kit.instrumentLoadCount++;
-        alert("loaded a sample");
+        // alert("loaded a sample");
         if (kit.instrumentLoadCount == kit.instrumentCount) {
-            alert("loaded");
+            // alert("loaded");
             kit.isLoaded = true;
 
             if (kit.demoIndex != -1) {
@@ -333,7 +333,7 @@ function showPlayAvailable() {
 }
 
 function init() {
-    alert("init");
+    // alert("init");
     // Let the beat demos know when all of their assets have been loaded.
     // Add some new methods to support this.
     // for (var i = 0; i < beatDemo.length; ++i) {
@@ -362,7 +362,7 @@ function init() {
     //     };
     // }
         
-    alert("loading assets");
+    // alert("loading assets");
     startLoadingAssets();
 
     context = new webkitAudioContext();
@@ -395,9 +395,10 @@ function init() {
     eventQ = new Queue();
 //    initControls();
 //    updateControls();
-    tenp = loopPlayer(intensityBuffers[0], false, x, y, z, 0, 0.3, 1, 0);
-    twelvep = loopPlayer(intensityBuffers[0], false, x, y, z, 0, 0.3, 1, 0);
-    fourteenp = loopPlayer(intensityBuffers[0], false, x, y, z, 0, 0.3, 1, 0);
+    tenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
+    twelvep = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
+    fourteenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
+    // alert("init end");
     schedule();
 }
 
@@ -537,29 +538,8 @@ function playNote(buffer, pan, x, y, z, sendGain, mainGain, playbackRate, noteTi
     voice.buffer = buffer;
     voice.playbackRate.value = playbackRate;
 
-    // Optionally, connect to a panner
-    var finalNode;
-    if (pan) {
-        var panner = context.createPanner();
-        panner.panningModel = webkitAudioPannerNode.HRTF;
-        panner.setPosition(x, y, z);
-        voice.connect(panner);
-        finalNode = panner;
-    } else {
-        finalNode = voice;
-    }
-
-    // Connect to dry mix
-    var dryGainNode = context.createGainNode();
-    dryGainNode.gain.value = mainGain * effectDryMix;
-    finalNode.connect(dryGainNode);
-    dryGainNode.connect(masterGainNode);
-
-    // Connect to wet mix
-    var wetGainNode = context.createGainNode();
-    wetGainNode.gain.value = sendGain;
-    finalNode.connect(wetGainNode);
-    wetGainNode.connect(convolver);
+    // Connect to main mix
+    voice.connect(masterGainNode);
 
     voice.noteOn(noteTime);
 }
@@ -572,19 +552,7 @@ function loopPlayer(buffer, pan, x, y, z, sendGain, mainGain, playbackRate, note
     voice.loop.value = true;
 
     // Optionally, connect to a panner
-    var finalNode = voice;
-
-    // Connect to dry mix
-    var dryGainNode = context.createGainNode();
-    dryGainNode.gain.value = mainGain * effectDryMix;
-    finalNode.connect(dryGainNode);
-    dryGainNode.connect(masterGainNode);
-
-    // Connect to wet mix
-    var wetGainNode = context.createGainNode();
-    wetGainNode.gain.value = sendGain;
-    finalNode.connect(wetGainNode);
-    wetGainNode.connect(convolver);
+    voice.connect(masterGainNode);
 
     voice.noteOn(noteTime);
     return voice;
@@ -596,6 +564,7 @@ function schedule() {
     var floor = 0;
     var sleepy = 500;
     if (!eventQ.isEmpty()) {
+        alert("not empty");
         sleepy = Math.exp(a*eventQ.getLength()+b) + floor;
         var e = eventQ.dequeue();
         var x = Math.random() * 4 - 2;
@@ -607,55 +576,56 @@ function schedule() {
             intensityceiling = 1/sleepy;
         }
         var intensitylevel = Math.floor((1/sleepy) / (intensityceiling/7));
-        switch (intensityLevel) {
+        switch (intensitylevel) {
             case 0:
-                tenp.buffer = currentKit.intensityBuffer[0]; tenp.noteOn(0);
+                tenp.buffer = currentKit.intensityBuffers[0]; tenp.noteOn(0);
                 twelvep.noteOff(0);
                 fourteenp.noteOff(0);
                 break;
             case 1:
-                tenp.buffer = currentKit.intensityBuffer[1]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffer[0]; twelvep.noteOn(0);
+                tenp.buffer = currentKit.intensityBuffers[1]; tenp.noteOn(0);
+                twelvep.buffer = currentKit.intensityBuffers[0]; twelvep.noteOn(0);
                 fourteenp.noteOff(0);
                 break;
             case 2:
-                tenp.buffer = currentKit.intensityBuffer[4]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffer[1]; twelvep.noteOn(0);
+                tenp.buffer = currentKit.intensityBuffers[4]; tenp.noteOn(0);
+                twelvep.buffer = currentKit.intensityBuffers[1]; twelvep.noteOn(0);
                 fourteenp.noteOff(0);
                 break;
             case 3:
-                tenp.buffer = currentKit.intensityBuffer[7]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffer[5]; twelvep.noteOn(0);
-                fourteenp.buffer = currentKit.intensityBuffer[3]; fourteenp.noteOn(0);
+                tenp.buffer = currentKit.intensityBuffers[7]; tenp.noteOn(0);
+                twelvep.buffer = currentKit.intensityBuffers[5]; twelvep.noteOn(0);
+                fourteenp.buffer = currentKit.intensityBuffers[3]; fourteenp.noteOn(0);
                 break;
             case 4:
-                tenp.buffer = currentKit.intensityBuffer[10]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffer[8]; twelvep.noteOn(0);
-                fourteenp.buffer = currentKit.intensityBuffer[6]; fourteenp.noteOn(0);
+                tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
+                twelvep.buffer = currentKit.intensityBuffers[8]; twelvep.noteOn(0);
+                fourteenp.buffer = currentKit.intensityBuffers[6]; fourteenp.noteOn(0);
                 break;
             case 5:
-                tenp.buffer = currentKit.intensityBuffer[10]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffer[11]; twelvep.noteOn(0);
-                fourteenp.buffer = currentKit.intensityBuffer[9]; fourteenp.noteOn(0);
+                tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
+                twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(0);
+                fourteenp.buffer = currentKit.intensityBuffers[9]; fourteenp.noteOn(0);
                 break;
             case 6:
-                tenp.buffer = currentKit.intensityBuffer[10]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffer[11]; twelvep.noteOn(0);
-                fourteenp.buffer = currentKit.intensityBuffer[12]; fourteenp.noteOn(0);
+                tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
+                twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(0);
+                fourteenp.buffer = currentKit.intensityBuffers[12]; fourteenp.noteOn(0);
                 break;
         }
         if (e == "#") {
-            playNote(currentKit.hashBuffer, false, x, y, z, 0, 0.5, 1, 0);
+            document.write("#");
+            playNote(currentKit.hashBuffer, false, 0, 0, 0, 0, 0.5, 1, 0);
         } else if (e == "@") {
-            playNote(currentKit.thunderBuffer, false, x, y, z, 0, 0.5, 1, 0);
+            playNote(currentKit.thunderBuffer, false, 0, 0, 0, 0, 0.5, 1, 0);
         } else if (e == "d") {
-            playNote(currentKit.dropBuffer, false, x, y, z, 0, 0.5, 1, 0);
+            playNote(currentKit.dropBuffer, false, 0, 0, 0, 0, 0.5, 1, 0);
         } else if (customSamps[e].isLoaded) {
-            playNote(customSamps[e].buffer, false, x, y, z, 0, 0.5, 1, 0);
+            playNote(customSamps[e].buffer, false, 0, 0, 0, 0, 0.5, 1, 0);
         }
             
     } else {
-        
+//        alert("empty");
     }
     var timeoutId = setTimeout("schedule()", sleepy);
 }
