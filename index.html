@@ -248,9 +248,9 @@ Kit.prototype.loadSample = function(sampleID, url, mixToMono) {
             // alert("loaded");
             kit.isLoaded = true;
 //            document.getElementById('loading').innerHTML = "loaded all buffers";
-            tenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
-            twelvep = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0); twelvep[0].noteOff(0);
-            fourteenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0); fourteenp[0].noteOff(0);
+            tenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.25, 1, 0);
+            twelvep = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.25, 1, 0); twelvep[0].noteOff(0);
+            fourteenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.25, 1, 0); fourteenp[0].noteOff(0);
 
             if (kit.demoIndex != -1) {
                 beatDemo[kit.demoIndex].setKitLoaded();
@@ -632,10 +632,10 @@ var lastintensity=0;
 function schedule() {
 //    console.log("schedule!");
     var a = 5;
-    var b = -0.125;
+    var b = -0.085;
     var c = -0.25;
     var floor = 0;
-    var sleepy = 5;
+    var sleepy = 8.5;
     var intensitylevel = lastintensity;
     if (!eventQ.isEmpty()) {
         console.log("events in queue");
@@ -665,7 +665,7 @@ function schedule() {
             intensityceiling = 1/sleepy;
         }
         intensitylevel = Math.floor((1/sleepy) / (intensityceiling/6))+1;
-        console.log("ceil", intensityceiling);
+        console.log("ceil", intensityceiling, "level", intensitylevel);
 /*        if (intensitylevel != lastintensity) {
             if (intensitylevel > lastintensity) {
                 intensitylevel = lastintensity + 1;
@@ -675,21 +675,21 @@ function schedule() {
             console.log("intense", intensitylevel, "last", lastintensity);
         }*/
         if (e == "#") {
-            playNote(currentKit.hashBuffer, false, 0, 0, 0, 0, 0.5, 1, 0);
+            playNote(currentKit.thunderBuffer, false, 0, 0, 0, 0, 0.75, 1, 0);
         } else if (e == "@") {
-            playNote(currentKit.thunderBuffer, false, 0, 0, 0, 0, 0.5, 1, 0);
+            playNote(currentKit.thunderBuffer, false, 0, 0, 0, 0, 0.75, 1, 0);
         } else if (e == "d") {
-            playNote(currentKit.dropBuffer, false, 0, 0, 0, 0, 0.5, 1, 0);
+            playNote(currentKit.dropBuffer, false, 0, 0, 0, 0, 0.75, 1, 0);
         } else if (customSamps[e].isLoaded) {
             playNote(customSamps[e].buffer, false, 0, 0, 0, 0, 0.5, 1, 0);
         }
             
     } else if (tenp != 0) {
-        console.log("decrement");
         intensitylevel = lastintensity - 1;
         if (intensitylevel < 0) {
             intensitylevel = 0;
         }
+        console.log("ceil", intensityceiling, "level", intensitylevel);
     }
     
     if (intensitylevel != lastintensity) {
@@ -700,7 +700,7 @@ function schedule() {
         switch (intensitylevel) {
             case 0:
                 newsrc = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 newsrc[0].noteOn(0);
                 tenp[1].gain.setTargetValueAtTime(0, context.currentTime+1, 1);
                 tenp[0].noteOff(context.currentTime+1);
@@ -712,12 +712,12 @@ function schedule() {
                 break;
             case 1:
                 newsrc = loopPlayer(currentKit.intensityBuffers[1], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 tenp[1].gain.setTargetValueAtTime(0, 1, 1);
                 tenp[0].noteOff(context.currentTime+10);
                 tenp = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 twelvep[1].gain.setTargetValueAtTime(0, 1, 1);
                 twelvep[0].noteOff(context.currentTime+10);
                 twelvep = newsrc;
@@ -726,68 +726,68 @@ function schedule() {
                 break;
             case 2:
                 newsrc = loopPlayer(currentKit.intensityBuffers[4], false, 0, 0, 0, 0, 0, 1, 0);
-               newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+               newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 tenp[1].gain.setTargetValueAtTime(0, 1, 1);
                 tenp[0].noteOff(context.currentTime+10);
                 tenp = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[2], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 twelvep[1].gain.setTargetValueAtTime(0, 1, 1);
                 twelvep[0].noteOff(context.currentTime+10);
                 twelvep = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[3], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 2, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 2, 1);
                 fourteenp[1].gain.setTargetValueAtTime(0, 2, 1);
                 fourteenp[0].noteOff(context.currentTime+10);
                 fourteenp = newsrc;
                 break;
             case 3:
                 newsrc = loopPlayer(currentKit.intensityBuffers[7], false, 0, 0, 0, 0, 0, 1, 0);
-               newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+               newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 tenp[1].gain.setTargetValueAtTime(0, 1, 1);
                 tenp[0].noteOff(context.currentTime+10);
                 tenp = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[5], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 twelvep[1].gain.setTargetValueAtTime(0, 1, 1);
                 twelvep[0].noteOff(context.currentTime+10);
                 twelvep = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[3], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 2, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 2, 1);
                 fourteenp[1].gain.setTargetValueAtTime(0, 2, 1);
                 fourteenp[0].noteOff(context.currentTime+10);
                 fourteenp = newsrc;
                 break;
             case 4:
                 newsrc = loopPlayer(currentKit.intensityBuffers[10], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 tenp[1].gain.setTargetValueAtTime(0, 1, 1);
                 tenp[0].noteOff(context.currentTime+10);
                 tenp = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[8], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 twelvep[1].gain.setTargetValueAtTime(0, 1, 1);
                 twelvep[0].noteOff(context.currentTime+10);
                 twelvep = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[6], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 2, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 2, 1);
                 fourteenp[1].gain.setTargetValueAtTime(0, 2, 1);
                 fourteenp[0].noteOff(context.currentTime+10);
                 fourteenp = newsrc;
                 break;
             case 5:
                 newsrc = loopPlayer(currentKit.intensityBuffers[10], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 tenp[1].gain.setTargetValueAtTime(0, 1, 1);
                 tenp[0].noteOff(context.currentTime+10);
                 tenp = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[11], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 twelvep[1].gain.setTargetValueAtTime(0, 1, 1);
                 twelvep[0].noteOff(context.currentTime+10);
                 twelvep = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[9], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 2, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 2, 1);
                 fourteenp[1].gain.setTargetValueAtTime(0, 2, 1);
                 fourteenp[0].noteOff(context.currentTime+10);
                 fourteenp = newsrc;
@@ -795,17 +795,17 @@ function schedule() {
             case 6:
             case 7:
                 newsrc = loopPlayer(currentKit.intensityBuffers[10], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 tenp[1].gain.setTargetValueAtTime(0, 1, 1);
                 tenp[0].noteOff(context.currentTime+10);
                 tenp = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[11], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 1, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 1, 1);
                 twelvep[1].gain.setTargetValueAtTime(0, 1, 1);
                 twelvep[0].noteOff(context.currentTime+10);
                 twelvep = newsrc;
                 newsrc = loopPlayer(currentKit.intensityBuffers[12], false, 0, 0, 0, 0, 0, 1, 0);
-                newsrc[1].gain.setTargetValueAtTime(0.3, 2, 1);
+                newsrc[1].gain.setTargetValueAtTime(0.25, 2, 1);
                 console.log(newsrc[1].gain.units);
                 fourteenp[1].gain.setTargetValueAtTime(0, 2, 1);
                 fourteenp[0].noteOff(context.currentTime+10);
@@ -1353,6 +1353,15 @@ function loadCustom(event, url) {
     customSamps[event].load();
 }
 
+function reset() {
+    intensityceiling=0;
+    while(!eventQ.isEmpty()){
+        eventQ.dequeue()
+    }
+    intensitylevel=0;
+    document.getElementById('lasttweet').innerHTML='';
+}
+
 </script>
 </head>
 
@@ -1391,7 +1400,7 @@ function loadCustom(event, url) {
 		<a href="#" class="btn large primary" id="tweetbutton" onClick="eventQ.enqueue('d')">Tweet</a><br/><br/>
 		<a href="#" class="btn large primary" id="atbutton" onClick="eventQ.enqueue('@')">@Reply</a><br/><br/>
 		<a href="#" class="btn large primary" id="hashbutton" onClick="eventQ.enqueue('#')">#Hashtag</a><br/><br/>
-		<a href="#" class="btn large primary" id="clearbutton" onClick="while(!eventQ.isEmpty()){eventQ.dequeue()">Clear noise queue.</a>
+		<a href="#" class="btn large primary" id="clearbutton" onClick="reset()">Reset!</a>
           </div>
         </div>
       </div>
