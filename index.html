@@ -1332,7 +1332,7 @@ function refreshTwitter() {
 	 }
 
      });
-     refresher = setTimeout("refreshTwitter()", 5000);
+     refresher = setTimeout("refreshTwitter()", 1000);
  }
     
 function loadCustom(event, url) {
@@ -1369,7 +1369,7 @@ function loadCustom(event, url) {
         <div class="row">
           <div class="span10">
             <h2>Search String</h2>
-		<br/> <input class="span9" id="searchterm" name="" type="text" placeholder="enter search string">
+		<br/> <input class="span9" id="searchterm" name="" type="text" placeholder="enter search string" value="#musichackday">
 		<br/><br/> <center> <button class="btn large success" onClick="refreshTwitter()">Set Search</button> </center>
           </div>
           <div class="span4">
