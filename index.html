@@ -28,7 +28,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
-
+<!-- danger -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
   "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -642,6 +642,18 @@ function schedule() {
         sleepy = a*Math.exp(b*eventQ.getLength()+c) + floor;
         console.log("sleep time", sleepy);
         var e = eventQ.dequeue();
+        if (e == '#') {
+            document.getElementById('hashbutton').className = "btn large danger";
+            setTimeout(function(){document.getElementById('hashbutton').className = "btn large primary";}, 100);
+        }
+        if (e == '@') {
+            document.getElementById('atbutton').className = "btn large danger";
+            setTimeout(function(){document.getElementById('atbutton').className = "btn large primary";}, 100);
+        }
+        if (e == 'd') {
+            document.getElementById('tweetbutton').className = "btn large danger";
+            setTimeout(function(){document.getElementById('tweetbutton').className = "btn large primary";}, 100);
+        }
         // document.getElementById('qsize').innerHTML = eventQ.getLength();
         console.log("event type", e);
         var x = Math.random() * 4 - 2;
@@ -1297,13 +1309,17 @@ function refreshTwitter() {
         var at_sign = /@/g;
 	 if( json.results ) {
           
-
+         var first = 1;
 	   for( i = 0; i < json.results.length; i++ ) {
 	       if (json.results[i].id <= max_id) {
 	           continue;
            }
            console.log(json.results[i].text );
            max_id = json.results[i].id;
+           if (first) {
+               first = 0;
+               document.getElementById('lasttweet').innerHTML=json.results[i].text;
+           }
 	     
          eventQ.enqueue('d');
          console.log("tweet!");
@@ -1370,14 +1386,14 @@ function loadCustom(event, url) {
           <div class="span10">
             <h2>Search String</h2>
 		<br/> <input class="span9" id="searchterm" name="" type="text" placeholder="enter search string" value="musichackday">
-		<br/><br/> <center> <button class="btn large success" onClick="refreshTwitter()">Set Search</button> </center>
+		<br/><br/> <center> <span id="lasttweet"></span></center>
           </div>
           <div class="span4">
             <h3>QTriggers</h3>
 		<br/>
-		<a href="#" class="btn large primary" onClick="eventQ.enqueue('d')">Tweet</a><br/><br/>
-		<a href="#" class="btn large primary" onClick="eventQ.enqueue('@')">@Reply</a><br/><br/>
-		<a href="#" class="btn large primary" onClick="eventQ.enqueue('#')">#Hashtag</a>
+		<a href="#" class="btn large primary" id="tweetbutton" onClick="eventQ.enqueue('d')">Tweet</a><br/><br/>
+		<a href="#" class="btn large primary" id="atbutton" onClick="eventQ.enqueue('@')">@Reply</a><br/><br/>
+		<a href="#" class="btn large primary" id="hashbutton"onClick="eventQ.enqueue('#')">#Hashtag</a>
           </div>
         </div>
       </div>
