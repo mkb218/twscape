@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <title>twscape</title>
 
 
+<script language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="Queue.js" language="javascript"></script>
 <!-- Our javascript code -->
 <script type="text/javascript">
@@ -47,12 +48,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 window.onload = init;
 //alert('outer scope');
 
+var search_url_front = 'http://search.twitter.com/search.json?include_entities=true&result_type=recent&callback=?&q='
 var eventQ;
 var customSamps = new Array();
 var intensityceiling = 1;
-var tenp;
-var twelvep;
-var fourteenp;
+var tenp = 0;
+var twelvep = 0;
+var fourteenp = 0;
 
 var context;
 // var convolver;
@@ -176,6 +178,9 @@ Kit.prototype.loadSample = function(sampleID, url, mixToMono) {
         if (kit.instrumentLoadCount == kit.instrumentCount) {
             // alert("loaded");
             kit.isLoaded = true;
+            tenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
+            twelvep = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
+            fourteenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
 
             if (kit.demoIndex != -1) {
                 beatDemo[kit.demoIndex].setKitLoaded();
@@ -386,26 +391,22 @@ function init() {
     eventQ = new Queue();
 //    initControls();
 //    updateControls();
-    tenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
-    twelvep = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
-    fourteenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
     // alert("init end");
     schedule();
+    refreshTwitter();
 }
 
-function CustomSamp(event, path) {
-    this.name = name;
+function CustomSamp(path) {
     this.buffer = 0;
     this.isLoaded = 0;
-    customSamps[event] = this;
-    this.load(path);
+    this.path = path;
 }
 
-CustomSamp.prototype.load = function(url) {
+CustomSamp.prototype.load = function() {
     // Load asynchronously
 
     var request = new XMLHttpRequest();
-    request.open("GET", url, true);
+    request.open("GET", this.path, true);
     request.responseType = "arraybuffer";
 
     var samp = this;
@@ -528,9 +529,13 @@ function playNote(buffer, pan, x, y, z, sendGain, mainGain, playbackRate, noteTi
     var voice = context.createBufferSource();
     voice.buffer = buffer;
     voice.playbackRate.value = playbackRate;
-
+    
     // Connect to main mix
-    voice.connect(masterGainNode);
+    var dryGainNode = context.createGainNode();
+    dryGainNode.gain.value = mainGain;
+    voice.connect(dryGainNode);
+
+    dryGainNode.connect(masterGainNode);
 
     voice.noteOn(noteTime);
 }
@@ -540,25 +545,33 @@ function loopPlayer(buffer, pan, x, y, z, sendGain, mainGain, playbackRate, note
     var voice = context.createBufferSource();
     voice.buffer = buffer;
     voice.playbackRate.value = playbackRate;
-    voice.loop.value = true;
+    voice.loop = true;
 
     // Optionally, connect to a panner
-    voice.connect(masterGainNode);
+    var dryGainNode = context.createGainNode();
+    dryGainNode.gain.value = mainGain;
+    voice.connect(dryGainNode);
+
+    dryGainNode.connect(masterGainNode);
 
     voice.noteOn(noteTime);
     return voice;
 }
 
+var lastintensity=0;
 function schedule() {
-    var a = -5;
-    var b = -1;
+    console.log("schedule!");
+    var a = 5;
+    var b = -0.25;
+    var c = -0.5;
     var floor = 0;
-    var sleepy = 500;
+    var sleepy = 5;
     if (!eventQ.isEmpty()) {
-        alert("not empty");
-        sleepy = Math.exp(a*eventQ.getLength()+b) + floor;
+        // alert("not empty");
+        sleepy = a*Math.exp(b*eventQ.getLength()+c) + floor;
+        console.log(sleepy);
         var e = eventQ.dequeue();
-//        alert(e);
+        console.log(e);
         var x = Math.random() * 4 - 2;
         var y = Math.random() * 4 - 2;
         var z = Math.random() * 4 - 2;
@@ -567,50 +580,54 @@ function schedule() {
         if (1/sleepy > intensityceiling) {
             intensityceiling = 1/sleepy;
         }
-        var intensitylevel = Math.floor((1/sleepy) / (intensityceiling/7));
-        tenp.loop = true;
-        twelvep.loop = true;
-        fourteenp.loop = true;
-        switch (intensitylevel) {
-            case 0:
-                tenp.buffer = currentKit.intensityBuffers[0];tenp.noteOn(0);
-                twelvep.noteOff(0);
-                fourteenp.noteOff(0);
-                break;
-            case 1:
-                tenp.buffer = currentKit.intensityBuffers[1]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffers[0]; twelvep.noteOn(0);
-                fourteenp.noteOff(0);
-                break;
-            case 2:
-                tenp.buffer = currentKit.intensityBuffers[4]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffers[1]; twelvep.noteOn(0);
-                fourteenp.noteOff(0);
-                break;
-            case 3:
-                tenp.buffer = currentKit.intensityBuffers[7]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffers[5]; twelvep.noteOn(0);
-                fourteenp.buffer = currentKit.intensityBuffers[3]; fourteenp.noteOn(0);
-                break;
-            case 4:
-                tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffers[8]; twelvep.noteOn(0);
-                fourteenp.buffer = currentKit.intensityBuffers[6]; fourteenp.noteOn(0);
-                break;
-            case 5:
-                tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(0);
-                fourteenp.buffer = currentKit.intensityBuffers[9]; fourteenp.noteOn(0);
-                break;
-            case 6:
-            case 7:
-                tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
-                twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(0);
-                fourteenp.buffer = currentKit.intensityBuffers[12]; fourteenp.noteOn(0);
-                break;
+        var intensitylevel = Math.floor((1/sleepy) / (intensityceiling/6))+1;
+        console.log(intensitylevel, intensityceiling);
+        if (intensitylevel != lastintensity) {
+            console.log(intensitylevel);
+            tenp.loop = true;
+            twelvep.loop = true;
+            fourteenp.loop = true;
+            switch (intensitylevel) {
+                case 0:
+                    tenp.buffer = currentKit.intensityBuffers[0];tenp.noteOn(0);
+                    twelvep.noteOff(0);
+                    fourteenp.noteOff(0);
+                    break;
+                case 1:
+                    tenp.buffer = currentKit.intensityBuffers[1]; tenp.noteOn(0);
+                    twelvep.buffer = currentKit.intensityBuffers[0]; twelvep.noteOn(0);
+                    fourteenp.noteOff(0);
+                    break;
+                case 2:
+                    tenp.buffer = currentKit.intensityBuffers[4]; tenp.noteOn(0);
+                    twelvep.buffer = currentKit.intensityBuffers[1]; twelvep.noteOn(0);
+                    fourteenp.noteOff(0);
+                    break;
+                case 3:
+                    tenp.buffer = currentKit.intensityBuffers[7]; tenp.noteOn(0);
+                    twelvep.buffer = currentKit.intensityBuffers[5]; twelvep.noteOn(0);
+                    fourteenp.buffer = currentKit.intensityBuffers[3]; fourteenp.noteOn(0);
+                    break;
+                case 4:
+                    tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
+                    twelvep.buffer = currentKit.intensityBuffers[8]; twelvep.noteOn(0);
+                    fourteenp.buffer = currentKit.intensityBuffers[6]; fourteenp.noteOn(0);
+                    break;
+                case 5:
+                    tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
+                    twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(0);
+                    fourteenp.buffer = currentKit.intensityBuffers[9]; fourteenp.noteOn(0);
+                    break;
+                case 6:
+                case 7:
+                    tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
+                    twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(0);
+                    fourteenp.buffer = currentKit.intensityBuffers[12]; fourteenp.noteOn(0);
+                    break;
+            }
+            lastintensity = intensitylevel;
         }
         if (e == "#") {
-            document.write("#");
             playNote(currentKit.hashBuffer, false, 0, 0, 0, 0, 0.5, 1, 0);
         } else if (e == "@") {
             playNote(currentKit.thunderBuffer, false, 0, 0, 0, 0, 0.5, 1, 0);
@@ -620,10 +637,13 @@ function schedule() {
             playNote(customSamps[e].buffer, false, 0, 0, 0, 0, 0.5, 1, 0);
         }
             
-    } else {
-//        alert("empty");
+    } else if (tenp != 0) {
+        tenp.buffer = currentKit.intensityBuffers[0];tenp.noteOn(0);
+        twelvep.noteOff(0);
+        fourteenp.noteOff(0);
     }
-    var timeoutId = setTimeout("schedule()", sleepy);
+    var timeoutId = setTimeout("schedule()", sleepy*1000);
+    console.log(timeoutId);
 }
 
 function tempoIncrease() {
@@ -1104,8 +1124,63 @@ function drawPlayhead(xindex) {
     elOld.src = 'images/LED_off.png';
 }
 
+var max_id = 0;
+var refresher = 0;
+function refreshTwitter() {
+//    alert("refresh");
+    if (refresher != 0) {
+        clearTimeout(refresher); // avoid making second loop after force refresh
+    }
+    var search_url = search_url_front + document.getElementById('searchterm').value;
+    console.log(search_url);
+    $.getJSON( search_url, function(json) {
+	 var i, j;
+        var at_sign = /@/;
+	 if( json.results ) {
+          
+
+	   for( i = 0; i < json.results.length; i++ ) {
+	       if (json.results[i].id <= max_id) {
+	           continue;
+           }
+           console.log(json.results[i].text );
+           max_id = json.results[i].id;
+	     
+         eventQ.enqueue('d');
+         console.log("tweet!");
+	     // the text parameter can be searched for this too
+	     // find hashtags
+	     if( ( json.results[ i ].entities ) && ( json.results[ i ].entities.hashtags ) && ( json.results[ i ].entities.hashtags.length > 0 ) ) {
+	       for( j = 0; j < json.results[i].entities.hashtags.length; j++ ) {  
+	         eventQ.enqueue( '#' );
+	         console.log("hash!");
+	       }
+	     }
+	   
+	     // find mentions
+	     // FIXME: should add one '@' for EACH
+	     //   now just adds one regardless of how many mentions are in the tweet
+	     if( at_sign.test( json.results[i].text ) ) {
+	       var matches = json.results[i].text.match(at_sign);
+	       var k;
+	       for (k = 0; k < matches.length; k++) {
+	           eventQ.enqueue( '@' );
+    	         console.log("reply!");
+           }
+	     }
+	   }
+	 }
+
+     });
+     refresher = setTimeout("refreshTwitter()", 5000);
+ }
+    
+function loadCustom(event, url) {
+    customSamps[event] = new CustomSamp(url);
+    customSamps[event].load();
+}
+
 </script>
-<script type="text/javascript" src="Queue.js" />
 </head>
 
 
@@ -1116,6 +1191,11 @@ function drawPlayhead(xindex) {
 -->
 
 <body id='body'>
-<p>hey!</p>
+    <form><input type="button" name="tweet" value="Tweet" onClick="eventQ.enqueue('d')" /><br />
+    <input type="button" name="hash" value="Hashtag" onClick="eventQ.enqueue('#')" /><br />
+    <input type="button" name="reply" value="Reply" onClick="eventQ.enqueue('@')" /><br/>
+    <input id="searchterm" type="text" name="searchterm" /><input type="button" name="refresh" value="Refresh Twitter" onClick="refreshTwitter()" /><br />
+    <input id="matchterm0" type="text" name="matchterm0" /><input id="url0" type="text" name="url0" /><input type="button" name="refresh" value="Load" id="button0" onClick="loadCustom(document.getElementById('matchterm0').value, document.getElementById('url0').value)" /><br />
+    </form>
 </body>
 </html>
