@@ -1307,7 +1307,7 @@ function refreshTwitter() {
     $.getJSON( search_url, function(json) {
 	 var i, j;
         var at_sign = /@/g;
-        var thunderstruck = /thunderstruck/;
+        var thunderstruck = /thunderstruck/i;
 	 if( json.results ) {
           
          var first = 1;
@@ -1317,7 +1317,7 @@ function refreshTwitter() {
            }
            console.log(json.results[i].text );
            max_id = json.results[i].id;
-           document.getElementById('lasttweet').innerHTML='<b><small>'+json.results[i].created_at+'</small></b> ' + json.results[i].text+"<br />"+document.getElementById('lasttweet').innerHTML;
+           document.getElementById('lasttweet').innerHTML='<b><small>'+json.results[i].created_at+'</small></b> <b>@' + json.results[i].from_user + '</b> ' + json.results[i].text+"<br />"+document.getElementById('lasttweet').innerHTML;
 	     
          eventQ.enqueue('d');
          console.log("tweet!");
