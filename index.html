@@ -367,16 +367,7 @@ function init() {
 
     context = new webkitAudioContext();
 
-    var finalMixNode;
-    if (context.createDynamicsCompressor) {
-        // Create a dynamics compressor to sweeten the overall mix.
-        compressor = context.createDynamicsCompressor();
-        compressor.connect(context.destination);
-        finalMixNode = compressor;
-    } else {
-        // No compressor available in this implementation.
-        finalMixNode = context.destination;
-    }
+    var finalMixNode = context.destination;
 
     // Create master volume.
     masterGainNode = context.createGainNode();
@@ -567,6 +558,7 @@ function schedule() {
         alert("not empty");
         sleepy = Math.exp(a*eventQ.getLength()+b) + floor;
         var e = eventQ.dequeue();
+//        alert(e);
         var x = Math.random() * 4 - 2;
         var y = Math.random() * 4 - 2;
         var z = Math.random() * 4 - 2;
