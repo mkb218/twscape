@@ -644,15 +644,15 @@ function schedule() {
         var e = eventQ.dequeue();
         if (e == '#') {
             document.getElementById('hashbutton').className = "btn large danger";
-            setTimeout(function(){document.getElementById('hashbutton').className = "btn large primary";}, 100);
+            setTimeout(function(){document.getElementById('hashbutton').className = "btn large primary";}, 250);
         }
         if (e == '@') {
             document.getElementById('atbutton').className = "btn large danger";
-            setTimeout(function(){document.getElementById('atbutton').className = "btn large primary";}, 100);
+            setTimeout(function(){document.getElementById('atbutton').className = "btn large primary";}, 250);
         }
         if (e == 'd') {
             document.getElementById('tweetbutton').className = "btn large danger";
-            setTimeout(function(){document.getElementById('tweetbutton').className = "btn large primary";}, 100);
+            setTimeout(function(){document.getElementById('tweetbutton').className = "btn large primary";}, 250);
         }
         // document.getElementById('qsize').innerHTML = eventQ.getLength();
         console.log("event type", e);
@@ -1318,7 +1318,7 @@ function refreshTwitter() {
            max_id = json.results[i].id;
            if (first) {
                first = 0;
-               document.getElementById('lasttweet').innerHTML=json.results[i].text;
+               document.getElementById('lasttweet').innerHTML=json.results[i].text+"<br />"+document.getElementById('lasttweet').innerHTML;
            }
 	     
          eventQ.enqueue('d');
