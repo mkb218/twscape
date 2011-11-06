@@ -55,10 +55,10 @@ var twelvep;
 var fourteenp;
 
 var context;
-var convolver;
-var compressor;
+// var convolver;
+// var compressor;
 var masterGainNode;
-var effectLevelNode;
+// var effectLevelNode;
 
 // Each effect impulse response has a specific overall desired dry and wet volume.
 // For example in the telephone filter, it's necessary to make the dry volume 0 to correctly hear the effect.
@@ -165,9 +165,9 @@ Kit.prototype.loadSample = function(sampleID, url, mixToMono) {
             kit.intensityBuffers[sampleID] = buffer;
         } else {
             switch (sampleID) {
-                case 13: thunderBuffer = buffer; break;
-                case 14: hashBuffer = buffer; break;
-                case 15: dropPath = buffer; break;
+                case 13: kit.thunderBuffer = buffer; break;
+                case 14: kit.hashBuffer = buffer; break;
+                case 15: kit.dropBuffer = buffer; break;
             }
         }
 
@@ -375,13 +375,13 @@ function init() {
     masterGainNode.connect(finalMixNode);
 
     // Create effect volume.
-    effectLevelNode = context.createGainNode();
-    effectLevelNode.gain.value = 1.0; // effect level slider controls this
-    effectLevelNode.connect(masterGainNode);
+    // effectLevelNode = context.createGainNode();
+    // effectLevelNode.gain.value = 1.0; // effect level slider controls this
+    // effectLevelNode.connect(masterGainNode);
 
     // Create convolver for effect
-    convolver = context.createConvolver();
-    convolver.connect(effectLevelNode);
+    // convolver = context.createConvolver();
+    // convolver.connect(effectLevelNode);
 
     eventQ = new Queue();
 //    initControls();
@@ -568,9 +568,12 @@ function schedule() {
             intensityceiling = 1/sleepy;
         }
         var intensitylevel = Math.floor((1/sleepy) / (intensityceiling/7));
+        tenp.loop = true;
+        twelvep.loop = true;
+        fourteenp.loop = true;
         switch (intensitylevel) {
             case 0:
-                tenp.buffer = currentKit.intensityBuffers[0]; tenp.noteOn(0);
+                tenp.buffer = currentKit.intensityBuffers[0];tenp.noteOn(0);
                 twelvep.noteOff(0);
                 fourteenp.noteOff(0);
                 break;
@@ -600,6 +603,7 @@ function schedule() {
                 fourteenp.buffer = currentKit.intensityBuffers[9]; fourteenp.noteOn(0);
                 break;
             case 6:
+            case 7:
                 tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
                 twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(0);
                 fourteenp.buffer = currentKit.intensityBuffers[12]; fourteenp.noteOn(0);
