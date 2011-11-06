@@ -1307,6 +1307,7 @@ function refreshTwitter() {
     $.getJSON( search_url, function(json) {
 	 var i, j;
         var at_sign = /@/g;
+        var thunderstruck = /thunderstruck/;
 	 if( json.results ) {
           
          var first = 1;
@@ -1316,7 +1317,7 @@ function refreshTwitter() {
            }
            console.log(json.results[i].text );
            max_id = json.results[i].id;
-           document.getElementById('lasttweet').innerHTML=json.results[i].text+"<br />"+document.getElementById('lasttweet').innerHTML;
+           document.getElementById('lasttweet').innerHTML='<b><small>'+json.results[i].created_at+'</small></b> ' + json.results[i].text+"<br />"+document.getElementById('lasttweet').innerHTML;
 	     
          eventQ.enqueue('d');
          console.log("tweet!");
@@ -1340,6 +1341,10 @@ function refreshTwitter() {
     	         console.log("reply!");
            }
 	     }
+	     
+	     if (thunderstruck.test( json.results[i].text ) ) {
+	         document.getElementById('sekrit').innerHTML='<object style="height: 311px; width: 500px"><param name="movie" value="http://www.youtube.com/v/RukUetw0hAM?version=3&feature=player_detailpage&autoplay=1&start=50"><param name="allowFullScreen" value="true"><param name="allowScriptAccess" value="always"><embed src="http://www.youtube.com/v/RukUetw0hAM?version=3&feature=player_detailpage&autoplay=1&start=50" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="500" height="281"></object><br />';
+         }
 	   }
        // document.getElementById('qsize').innerHTML = eventQ.getLength();
 	 }
@@ -1392,7 +1397,7 @@ function reset() {
           <div class="span10">
             <h2>Search String</h2>
 		<br/> <input class="span9" id="searchterm" name="" type="text" placeholder="enter search string" value="musichackday">
-		<br/><br/> <center> <span id="lasttweet"></span></center>
+		<br/><br/> <center> <span class="span9" id="sekrit"></span></center><p> <span class="span9" id="lasttweet"></span></p>
           </div>
           <div class="span4">
             <h3>QTriggers</h3>
