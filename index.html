@@ -1316,10 +1316,7 @@ function refreshTwitter() {
            }
            console.log(json.results[i].text );
            max_id = json.results[i].id;
-           if (first) {
-               first = 0;
-               document.getElementById('lasttweet').innerHTML=json.results[i].text+"<br />"+document.getElementById('lasttweet').innerHTML;
-           }
+           document.getElementById('lasttweet').innerHTML=json.results[i].text+"<br />"+document.getElementById('lasttweet').innerHTML;
 	     
          eventQ.enqueue('d');
          console.log("tweet!");
