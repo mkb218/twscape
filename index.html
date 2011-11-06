@@ -654,14 +654,14 @@ function schedule() {
         }
         intensitylevel = Math.floor((1/sleepy) / (intensityceiling/6))+1;
         console.log("ceil", intensityceiling);
-        if (intensitylevel != lastintensity) {
+/*        if (intensitylevel != lastintensity) {
             if (intensitylevel > lastintensity) {
                 intensitylevel = lastintensity + 1;
             } else {
                 intensitylevel = lastintensity - 1;
             }
             console.log("intense", intensitylevel, "last", lastintensity);
-        }
+        }*/
         if (e == "#") {
             playNote(currentKit.hashBuffer, false, 0, 0, 0, 0, 0.5, 1, 0);
         } else if (e == "@") {
@@ -1369,7 +1369,7 @@ function loadCustom(event, url) {
         <div class="row">
           <div class="span10">
             <h2>Search String</h2>
-		<br/> <input class="span9" id="searchterm" name="" type="text" placeholder="enter search string" value="#musichackday">
+		<br/> <input class="span9" id="searchterm" name="" type="text" placeholder="enter search string" value="musichackday">
 		<br/><br/> <center> <button class="btn large success" onClick="refreshTwitter()">Set Search</button> </center>
           </div>
           <div class="span4">
@@ -1383,12 +1383,14 @@ function loadCustom(event, url) {
       </div>
 
       <footer>
+        <p>Requires Chrome or Safari nightly build</p>.
         <p>Boston MusicHackDay 2011 &copy; 2011
 	<br/>Will Mayo <a href="http://twitter.com/wrmayo">@wrmayo</a>
 	<br/>Matt Kane <a href="http://twitter.com/nynexrepublic">@nynexrepublic</a>
 	<br/>Mike Testa <a href="http://twitter.com/mikeytesta">@MikeyTesta</a> www.TheAudioPod.com
 	<br/>Mike Trapani <a href="http://twitter.com/Mike Trapani">@Mike Trapani</a>
 	<br/>John Saylor <a href="http://twitter.com/js0000">@js0000</a>
+	<br/><a href="http://github.com/mkb218/twscape">hell of such as github</a>
 	</p>
 	
       </footer>
