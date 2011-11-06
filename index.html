@@ -178,6 +178,7 @@ Kit.prototype.loadSample = function(sampleID, url, mixToMono) {
         if (kit.instrumentLoadCount == kit.instrumentCount) {
             // alert("loaded");
             kit.isLoaded = true;
+            document.getElementById('loading').innerHTML = "loaded all buffers";
             tenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
             twelvep = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
             fourteenp = loopPlayer(currentKit.intensityBuffers[0], false, 0, 0, 0, 0, 0.3, 1, 0);
@@ -560,18 +561,20 @@ function loopPlayer(buffer, pan, x, y, z, sendGain, mainGain, playbackRate, note
 
 var lastintensity=0;
 function schedule() {
-    console.log("schedule!");
+//    console.log("schedule!");
     var a = 5;
     var b = -0.25;
     var c = -0.5;
     var floor = 0;
     var sleepy = 5;
+    var intensitylevel = lastintensity;
     if (!eventQ.isEmpty()) {
-        // alert("not empty");
+        console.log("events in queue");
         sleepy = a*Math.exp(b*eventQ.getLength()+c) + floor;
-        console.log(sleepy);
+        console.log("sleep time", sleepy);
         var e = eventQ.dequeue();
-        console.log(e);
+        document.getElementById('qsize').innerHTML = eventQ.getLength();
+        console.log("event type", e);
         var x = Math.random() * 4 - 2;
         var y = Math.random() * 4 - 2;
         var z = Math.random() * 4 - 2;
@@ -580,52 +583,15 @@ function schedule() {
         if (1/sleepy > intensityceiling) {
             intensityceiling = 1/sleepy;
         }
-        var intensitylevel = Math.floor((1/sleepy) / (intensityceiling/6))+1;
-        console.log(intensitylevel, intensityceiling);
+        intensitylevel = Math.floor((1/sleepy) / (intensityceiling/6))+1;
+        console.log("ceil", intensityceiling);
         if (intensitylevel != lastintensity) {
-            console.log(intensitylevel);
-            tenp.loop = true;
-            twelvep.loop = true;
-            fourteenp.loop = true;
-            switch (intensitylevel) {
-                case 0:
-                    tenp.buffer = currentKit.intensityBuffers[0];tenp.noteOn(0);
-                    twelvep.noteOff(0);
-                    fourteenp.noteOff(0);
-                    break;
-                case 1:
-                    tenp.buffer = currentKit.intensityBuffers[1]; tenp.noteOn(0);
-                    twelvep.buffer = currentKit.intensityBuffers[0]; twelvep.noteOn(0);
-                    fourteenp.noteOff(0);
-                    break;
-                case 2:
-                    tenp.buffer = currentKit.intensityBuffers[4]; tenp.noteOn(0);
-                    twelvep.buffer = currentKit.intensityBuffers[1]; twelvep.noteOn(0);
-                    fourteenp.noteOff(0);
-                    break;
-                case 3:
-                    tenp.buffer = currentKit.intensityBuffers[7]; tenp.noteOn(0);
-                    twelvep.buffer = currentKit.intensityBuffers[5]; twelvep.noteOn(0);
-                    fourteenp.buffer = currentKit.intensityBuffers[3]; fourteenp.noteOn(0);
-                    break;
-                case 4:
-                    tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
-                    twelvep.buffer = currentKit.intensityBuffers[8]; twelvep.noteOn(0);
-                    fourteenp.buffer = currentKit.intensityBuffers[6]; fourteenp.noteOn(0);
-                    break;
-                case 5:
-                    tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
-                    twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(0);
-                    fourteenp.buffer = currentKit.intensityBuffers[9]; fourteenp.noteOn(0);
-                    break;
-                case 6:
-                case 7:
-                    tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
-                    twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(0);
-                    fourteenp.buffer = currentKit.intensityBuffers[12]; fourteenp.noteOn(0);
-                    break;
+            if (intensitylevel > lastintensity) {
+                intensitylevel = lastintensity + 1;
+            } else {
+                intensitylevel = lastintensity - 1;
             }
-            lastintensity = intensitylevel;
+            console.log("intense", intensitylevel, "last", lastintensity);
         }
         if (e == "#") {
             playNote(currentKit.hashBuffer, false, 0, 0, 0, 0, 0.5, 1, 0);
@@ -638,12 +604,58 @@ function schedule() {
         }
             
     } else if (tenp != 0) {
-        tenp.buffer = currentKit.intensityBuffers[0];tenp.noteOn(0);
-        twelvep.noteOff(0);
-        fourteenp.noteOff(0);
+        console.log("decrement");
+        intensitylevel = lastintensity - 1;
+        if (intensitylevel < 0) {
+            intensitylevel = 0;
+        }
+    }
+    
+    if (intensitylevel != lastintensity) {
+        tenp.loop = true;
+        twelvep.loop = true;
+        fourteenp.loop = true;
+        switch (intensitylevel) {
+            case 0:
+                tenp.buffer = currentKit.intensityBuffers[0];tenp.noteOn(0);
+                twelvep.noteOff(1);
+                fourteenp.noteOff(2);
+                break;
+            case 1:
+                tenp.buffer = currentKit.intensityBuffers[1]; tenp.noteOn(0);
+                setTimeout("twelvep.buffer = currentKit.intensityBuffers[0]; twelvep.noteOn(0);", 1000);
+                setTimeout("fourteenp.noteOff(0)",2000);
+                break;
+            case 2:
+                tenp.buffer = currentKit.intensityBuffers[4]; tenp.noteOn(0);
+                setTimeout("twelvep.buffer = currentKit.intensityBuffers[1]; twelvep.noteOn(1);", 1000);
+                setTimeout("fourteenp.noteOff(2);",2000);
+                break;
+            case 3:
+                tenp.buffer = currentKit.intensityBuffers[7]; tenp.noteOn(0);
+                setTimeout("twelvep.buffer = currentKit.intensityBuffers[5]; twelvep.noteOn(1);",1000);
+                setTimeout("fourteenp.buffer = currentKit.intensityBuffers[3]; fourteenp.noteOn(2);", 2000);
+                break;
+            case 4:
+                tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
+                setTimeout("twelvep.buffer = currentKit.intensityBuffers[8]; twelvep.noteOn(1);",1000);
+                setTimeout("fourteenp.buffer = currentKit.intensityBuffers[6]; fourteenp.noteOn(2);", 2000);
+                break;
+            case 5:
+                tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
+                setTimeout("twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(1);",1000);
+                setTimeout("fourteenp.buffer = currentKit.intensityBuffers[9]; fourteenp.noteOn(2);", 2000);
+                break;
+            case 6:
+            case 7:
+                tenp.buffer = currentKit.intensityBuffers[10]; tenp.noteOn(0);
+                setTimeout("twelvep.buffer = currentKit.intensityBuffers[11]; twelvep.noteOn(1);", 1000);
+                setTimeout("fourteenp.buffer = currentKit.intensityBuffers[12]; fourteenp.noteOn(2);", 2000);
+                break;
+        }
+        lastintensity = intensitylevel;
     }
     var timeoutId = setTimeout("schedule()", sleepy*1000);
-    console.log(timeoutId);
 }
 
 function tempoIncrease() {
@@ -1135,7 +1147,7 @@ function refreshTwitter() {
     console.log(search_url);
     $.getJSON( search_url, function(json) {
 	 var i, j;
-        var at_sign = /@/;
+        var at_sign = /@/g;
 	 if( json.results ) {
           
 
@@ -1169,6 +1181,7 @@ function refreshTwitter() {
            }
 	     }
 	   }
+	   document.getElementById('qsize').innerHTML = eventQ.getLength();
 	 }
 
      });
@@ -1191,6 +1204,8 @@ function loadCustom(event, url) {
 -->
 
 <body id='body'>
+    <p id="loading">Loading...</p>
+    <p>Event Queue size: <span id="qsize">0</span></p>
     <form><input type="button" name="tweet" value="Tweet" onClick="eventQ.enqueue('d')" /><br />
     <input type="button" name="hash" value="Hashtag" onClick="eventQ.enqueue('#')" /><br />
     <input type="button" name="reply" value="Reply" onClick="eventQ.enqueue('@')" /><br/>
